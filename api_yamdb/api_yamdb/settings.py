@@ -130,3 +130,6 @@ SIMPLE_JWT = {
 ADMIN = 'admin'
 MODERATOR = 'moderator'
 USER = 'user'
+
+
+AUTH_USER_MODEL = 'reviews.User'

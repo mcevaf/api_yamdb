@@ -70,12 +70,32 @@ class User(AbstractUser):
         return self.role == USER
 
     class Meta:
-        ordering = ('id')
+        ordering = ('id',)
         verbose_name = 'Пользователь'
-        verbose_name_much = 'Пользователи'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return self.username
 
 
 '''Здесь должна быть функция получения кода подтверждения'''
+
+
+class Category(models.Model):
+    pass
+
+
+class Comment(models.Model):
+    pass
+
+
+class Genre(models.Model):
+    pass
+
+
+class Review(models.Model):
+    pass
+
+
+class Title(models.Model):
+    pass
