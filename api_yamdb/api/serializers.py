@@ -1,4 +1,16 @@
 from rest_framework import serializers
+from reviews.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Model:
+        model = User
+        fields = (
+            'username', 'email',
+            'first_name', 'last_name',
+            'bio', 'role'
+        )
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.relations import SlugRelatedField
