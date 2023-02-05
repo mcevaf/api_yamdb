@@ -80,3 +80,7 @@ class User(AbstractUser):
 
 '''Здесь должна быть функция получения кода подтверждения'''
 # post_save
+
+class GenreTitle(models.Model):
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
