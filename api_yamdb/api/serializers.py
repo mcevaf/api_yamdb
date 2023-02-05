@@ -39,3 +39,15 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'text', 'review', 'author', 'pub_date')
+from rest_framework import serializers
+from reviews.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Model:
+        model = User
+        fields = (
+            'username', 'email',
+            'first_name', 'last_name',
+            'bio', 'role'
+        )
