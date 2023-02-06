@@ -8,7 +8,7 @@ from api_yamdb.settings import ADMIN, MODERATOR, USER
 ROLE_CHOICES = [
     (ADMIN, ADMIN),
     (MODERATOR, MODERATOR),
-    (USER, USER)
+    (USER, USER),
 ]
 
 
@@ -80,23 +80,3 @@ class User(AbstractUser):
 
 '''Здесь должна быть функция получения кода подтверждения'''
 # post_save
-
-
-class Category(models.Model):
-    pass
-
-
-class Comment(models.Model):
-    pass
-
-
-class Genre(models.Model):
-    pass
-
-
-class Review(models.Model):
-    pass
-
-
-class Title(models.Model):
-    pass
