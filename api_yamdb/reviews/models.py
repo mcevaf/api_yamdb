@@ -79,6 +79,7 @@ class User(AbstractUser):
 
 
 '''Здесь должна быть функция получения кода подтверждения'''
+# post_save
 
 
 class Category(models.Model):
