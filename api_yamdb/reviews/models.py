@@ -8,7 +8,7 @@ from api_yamdb.settings import ADMIN, MODERATOR, USER
 ROLE_CHOICES = [
     (ADMIN, ADMIN),
     (MODERATOR, MODERATOR),
-    (USER, USER),
+    (USER, USER)
 ]
 
 
