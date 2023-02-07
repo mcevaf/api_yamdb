@@ -45,6 +45,7 @@ class User(AbstractUser):
         'имя',
         max_length=150,
         blank=True,
+    )
     
     class Meta:
         ordering = ('id',)
