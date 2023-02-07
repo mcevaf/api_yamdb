@@ -1,7 +1,6 @@
 import datetime as dt
 
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.tokens import default_token_generator
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -46,7 +45,7 @@ class User(AbstractUser):
         max_length=150,
         blank=True,
     )
-    
+
     class Meta:
         ordering = ('id',)
         verbose_name = 'Пользователь'
@@ -87,7 +86,7 @@ class Title(models.Model):
     """Модель для произведений."""
     name = models.CharField('Наименование произведения', max_length=256)
     year = models.PositiveSmallIntegerField(
-        'Год выпуска', 
+        'Год выпуска',
         validators=[MaxValueValidator(
             dt.datetime.now().year,
             'Год не может быть больше текущего!'
@@ -111,7 +110,7 @@ class Title(models.Model):
         verbose_name='Категория'
     )
 
-   def __str__(self):
+    def __str__(self):
         return self.name
 
 
