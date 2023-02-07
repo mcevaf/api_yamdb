@@ -81,6 +81,20 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
 
 
+class TitleCreateUpdateSerializer(serializers.ModelSerializer):
+    """Сериализатор создания/обновления произведения."""
+    genre = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Genre.objects.all(), many=True
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all(), many=False
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Title
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с отзывами."""
     author = SlugRelatedField(
