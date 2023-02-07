@@ -1,8 +1,9 @@
 import os
 
+from datetime import timedelta
+
 from pathlib import Path
 
-from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,9 +25,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'reviews',
-
 ]
 
 MIDDLEWARE = [
@@ -45,7 +43,7 @@ TEMPLATES_DIR = BASE_DIR / 'templates'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_DIR],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -106,7 +104,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR / 'static/'),)
+STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
 
 REST_FRAMEWORK = {
