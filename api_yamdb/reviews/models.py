@@ -1,11 +1,12 @@
 import datetime as dt
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.tokens import default_token_generator
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .validators import validate_username
 from api_yamdb.settings import ADMIN, MODERATOR, USER
+from .validators import validate_username
 
 ROLE_CHOICES = [
     (ADMIN, ADMIN),
@@ -110,11 +111,17 @@ class Title(models.Model):
         verbose_name='Категория'
     )
 
+    class Meta:
+        ordering = ('year',)
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
+
     def __str__(self):
         return self.name
 
 
 class GenreTitle(models.Model):
+    """Промежуточная таблица связи жанров и произведений"""
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
