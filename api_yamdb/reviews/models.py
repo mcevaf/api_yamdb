@@ -1,9 +1,58 @@
 import datetime as dt
 
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.tokens import default_token_generator
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from users.models import User
+from .validators import validate_username
+from api_yamdb.settings import ADMIN, MODERATOR, USER
+
+ROLE_CHOICES = [
+    (ADMIN, ADMIN),
+    (MODERATOR, MODERATOR),
+    (USER, USER)
+]
+
+
+class User(AbstractUser):
+    '''AbstractUser - разширенная модель пользователя(user)'''
+    username = models.CharField(
+        validators=(validate_username,),
+        max_length=150,
+        unique=True,
+        blank=False,
+        null=False,
+    )
+    email = models.EmailField(
+        max_length=254,
+        unique=True,
+        blank=False,
+        null=False
+    )
+    role = models.CharField(
+        'роль',
+        max_length=30,
+        choices=ROLE_CHOICES,
+        default=USER,
+        blank=True,
+    )
+    bio = models.TextField(
+        'биография',
+        blank=True,
+    )
+    first_name = models.CharField(
+        'имя',
+        max_length=150,
+        blank=True,
+    
+    class Meta:
+        ordering = ('id',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
 
 
 class Category(models.Model):
@@ -60,19 +109,13 @@ class Title(models.Model):
         verbose_name='Категория'
     )
 
-    class Meta:
-        ordering = ('id')
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
-    def __str__(self):
+   def __str__(self):
         return self.name
 
 
 class GenreTitle(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-# post_save
 
 
 class Review(models.Model):
