@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
@@ -13,9 +15,17 @@ from .permissions import (AdminOnly, IsAdminModeratorPermission,
                           IsadminUserOrReadOnly)
 
 from .serializers import (UserSerializer, NoAdminSerializers,
-                          GetTokenSerializers, SignUpSerializers)
+                          GetTokenSerializers, SignUpSerializers,
+                          CategorySerializer, GenreSerializer,
+                          TitleCreateUpdateSerializer, TitleSerializer)
 
-from reviews.models import User
+from reviews.models import Category, Genre, Title, User
+
+
+class ListCreateDeleteViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
+                               mixins.ListModelMixin, mixins.DestroyModelMixin):
+    """Кастомный базовый класс для жанров и категорий."""
+    pass
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -104,3 +114,45 @@ def send_token(request):
         {'confirmation_code': 'Неверный код подтверждения!'},
         status=status.HTTP_400_BAD_REQUEST
     )
+
+
+class CategoryViewSet(ListCreateDeleteViewSet):
+    """Вьюсет для категорий."""
+    queryset = Category.objects.all()
+    lookup_field = 'slug'
+    serializer_class = CategorySerializer
+    permission_classes = [IsadminUserOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('=name',)
+
+
+class GenreViewSet(ListCreateDeleteViewSet):
+    """Вьюсет для жанров."""
+    queryset = Genre.objects.all()
+    lookup_field = 'slug'
+    serializer_class = GenreSerializer
+    permission_classes = [IsadminUserOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('=name',)
+
+
+class TitleFilter(django_filters.FilterSet):
+    """Фильтры для произведений."""
+    genre = django_filters.CharFilter('genre__slug')
+    category = django_filters.CharFilter('category__slug')
+    name = django_filters.CharFilter('name')
+    year = django_filters.CharFilter('year')
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """Вьюсет для произведений."""
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = [IsadminUserOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PATCH'):
+            return TitleCreateUpdateSerializer
+        return TitleSerializer
