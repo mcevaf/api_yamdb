@@ -76,7 +76,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-
-
-'''Здесь должна быть функция получения кода подтверждения'''
-# post_save
