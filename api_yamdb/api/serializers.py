@@ -1,10 +1,8 @@
 from rest_framework import serializers
-from reviews.models import User
-from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.relations import SlugRelatedField
-from reviews.models import Review, Comment, Title
+from reviews.models import Review, Comment, Title, User
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -41,8 +39,6 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'text', 'review', 'author', 'pub_date')
-from rest_framework import serializers
-from reviews.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -56,16 +52,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class NoAdminSerializers(serializers.ModelSerializer):
-    class Model:
-        model = User
-        fields = (
-            'username', 'email',
-            'first_name', 'last_name',
-            'bio', 'role'
-        )
-
-
-class UserSerializer(serializers.ModelSerializer):
     class Model:
         model = User
         fields = (

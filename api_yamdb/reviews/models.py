@@ -54,6 +54,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    '''Здесь должна быть функция получения кода подтверждения'''
 
 
 class Category(models.Model):
@@ -178,5 +179,3 @@ class Comment(models.Model):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ['pub_date']
-
-'''Здесь должна быть функция получения кода подтверждения'''

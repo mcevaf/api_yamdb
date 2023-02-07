@@ -63,7 +63,6 @@ class TitleAdmin(admin.ModelAdmin):
     list_filter = ('name',)
     empty_value_display = '-none-'
 
-
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = (
