@@ -1,7 +1,6 @@
 import datetime as dt
 
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.tokens import default_token_generator
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -46,6 +45,31 @@ class User(AbstractUser):
         max_length=150,
         blank=True,
     )
+    last_name = models.CharField(
+        'фамилия',
+        max_length=150,
+        blank=True,
+    )
+    confirmation_code = models.CharField(
+        'код подтверждения',
+        max_length=255,
+        null=True,
+        blank=False,
+        default='1111'
+    )
+
+    '''Декоратор @property возвращает из метода класса в атрибут класса'''
+    @property
+    def is_admin(self):
+        return self.role == ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == MODERATOR
+
+    @property
+    def is_user(self):
+        return self.role == USER
 
     class Meta:
         ordering = ('id',)
@@ -54,7 +78,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-    '''Здесь должна быть функция получения кода подтверждения'''
 
 
 class Category(models.Model):

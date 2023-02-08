@@ -1,16 +1,16 @@
-import re
+import re  # бибилотека регулярных выражений
 
 from django.core.exceptions import ValidationError
 
 
 def validate_username(value):
-    if value == 'me' or 'Me':
+    if value == 'me':
         raise ValidationError(
-            ('Имя пользователя не может быть <me>.'),
+            ('Имя не может быть - me/Me/I.'),
             params={'value': value},
         )
     if re.search(r'^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$', value) is None:
         raise ValidationError(
-            (f'Не допустимые символы <{value}> в нике.'),
-            params={'value': value},
+            (f'Cимволы не могут быть в username - {value}', value),
+            params={'valuse': value},
         )
