@@ -16,7 +16,7 @@ ROLE_CHOICES = [
 
 
 class User(AbstractUser):
-    '''AbstractUser - разширенная модель пользователя(user)'''
+    '''AbstractUser - раcширенная модель пользователя(user)'''
     username = models.CharField(
         validators=(validate_username,),
         max_length=150,

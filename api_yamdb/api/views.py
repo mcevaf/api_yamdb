@@ -3,7 +3,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, status, viewsets
+from rest_framework import filters, mixins, permissions, status, viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action, api_view, permission_classes
@@ -19,7 +19,7 @@ from .serializers import (UserSerializer, NoAdminSerializers,
                           CategorySerializer, GenreSerializer,
                           TitleCreateUpdateSerializer, TitleSerializer)
 
-from reviews.models import Category, Genre, Title, User
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class ListCreateDeleteViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,

@@ -25,6 +25,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'reviews',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -128,6 +130,8 @@ SIMPLE_JWT = {
 ADMIN = 'admin'
 MODERATOR = 'moderator'
 USER = 'user'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'reviews.User'
 
