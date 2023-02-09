@@ -1,9 +1,8 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
-import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action, api_view, permission_classes
@@ -11,6 +10,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
+from .filters import TitleFilter
+from .mixins import ListCreateDeleteViewSet
 from .permissions import (AdminOnly, IsAdminModeratorPermission,
                           IsadminUserOrReadOnly)
 
@@ -20,12 +21,6 @@ from .serializers import (UserSerializer, NoAdminSerializers,
                           TitleCreateUpdateSerializer, TitleSerializer)
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
-
-
-class ListCreateDeleteViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
-                               mixins.ListModelMixin, mixins.DestroyModelMixin):
-    """Кастомный базовый класс для жанров и категорий."""
-    pass
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -122,7 +117,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
     lookup_field = 'slug'
     serializer_class = CategorySerializer
     permission_classes = [IsadminUserOrReadOnly]
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [SearchFilter]
     search_fields = ('=name',)
 
 
@@ -132,16 +127,8 @@ class GenreViewSet(ListCreateDeleteViewSet):
     lookup_field = 'slug'
     serializer_class = GenreSerializer
     permission_classes = [IsadminUserOrReadOnly]
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [SearchFilter]
     search_fields = ('=name',)
-
-
-class TitleFilter(django_filters.FilterSet):
-    """Фильтры для произведений."""
-    genre = django_filters.CharFilter('genre__slug')
-    category = django_filters.CharFilter('category__slug')
-    name = django_filters.CharFilter('name')
-    year = django_filters.CharFilter('year')
 
 
 class TitleViewSet(viewsets.ModelViewSet):
