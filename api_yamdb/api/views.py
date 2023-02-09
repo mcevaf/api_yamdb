@@ -1,16 +1,13 @@
-import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import mixins, filters, viewsets
+from rest_framework import viewsets
+from rest_framework.filters import SearchFilter
 
+from .filters import TitleFilter
+from .mixins import ListCreateDeleteViewSet
 from .permissions import IsadminUserOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleCreateUpdateSerializer, TitleSerializer)
 from reviews.models import Category, Genre, Title
-
-
-class ListCreateDeleteViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
-                               mixins.ListModelMixin, mixins.DestroyModelMixin):
-    pass
 
 
 class CategoryViewSet(ListCreateDeleteViewSet):
@@ -19,7 +16,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
     lookup_field = 'slug'
     serializer_class = CategorySerializer
     permission_classes = [IsadminUserOrReadOnly]
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [SearchFilter]
     search_fields = ('=name',)
 
 
@@ -29,16 +26,8 @@ class GenreViewSet(ListCreateDeleteViewSet):
     lookup_field = 'slug'
     serializer_class = GenreSerializer
     permission_classes = [IsadminUserOrReadOnly]
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [SearchFilter]
     search_fields = ('=name',)
-
-
-class TitleFilter(django_filters.FilterSet):
-    """Фильтры для произведений."""
-    genre = django_filters.CharFilter('genre__slug')
-    category = django_filters.CharFilter('category__slug')
-    name = django_filters.CharFilter('name')
-    year = django_filters.CharFilter('year')
 
 
 class TitleViewSet(viewsets.ModelViewSet):
