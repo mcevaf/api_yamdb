@@ -55,17 +55,16 @@ class User(AbstractUser):
         max_length=255,
         null=True,
         blank=False,
-        default='1111'
     )
 
     '''Декоратор @property возвращает из метода класса в атрибут класса'''
     @property
     def is_admin(self):
-        return self.role == ADMIN
+        return self.role == ADMIN or self.is_superuser
 
     @property
     def is_moderator(self):
-        return self.role == MODERATOR
+        return self.role == MODERATOR or self.is_staff
 
     @property
     def is_user(self):

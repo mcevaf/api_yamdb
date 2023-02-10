@@ -4,13 +4,19 @@ from django.core.exceptions import ValidationError
 
 
 def validate_username(value):
+    """
+    Недопустимо использовать имя пользователя me.
+    """
     if value == 'me':
         raise ValidationError(
             ('Имя не может быть - me'),
-            params={'value': value},
         )
-    if re.search(r'^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$', value) is None:
-        raise ValidationError(
-            (f'Cимволы не могут быть в username - {value}', value),
-            params={'valuse': value},
-        )
+    checked = re.search(r'^^[\w.@+-]+\Z', value)
+    if checked is None or checked.group() != value:
+        forbidden_simbol = value[0] if (
+            checked is None
+        ) else value[checked.span()[1]]
+        raise ValidationError(f'Нельзя использовать символ {forbidden_simbol} '
+                              'в username. Имя пользователя может содержать '
+                              'только буквы, цифры и символы @/./+/-/_')
+    return value

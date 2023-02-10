@@ -11,7 +11,7 @@ class CategoryAdmin(admin.ModelAdmin):
     )
     search_fields = ('name',)
     list_filter = ('name',)
-    empty_value_display = '-none-'
+    empty_value_display = '-empty-'
 
 
 @admin.register(Comment)
@@ -34,7 +34,7 @@ class GenreAdmin(admin.ModelAdmin):
     )
     search_fields = ('name',)
     list_filter = ('name',)
-    empty_value_display = '-none-'
+    empty_value_display = '-empty-'
 
 
 @admin.register(Review)
@@ -47,7 +47,7 @@ class ReviewAdmin(admin.ModelAdmin):
     )
     search_fields = ('pub_date',)
     list_filter = ('pub_date',)
-    empty_value_display = '-none-'
+    empty_value_display = '-empty-'
 
 
 @admin.register(Title)
@@ -60,7 +60,7 @@ class TitleAdmin(admin.ModelAdmin):
     )
     search_fields = ('name',)
     list_filter = ('name',)
-    empty_value_display = '-none-'
+    empty_value_display = '-empty-'
 
 
 @admin.register(User)
@@ -75,4 +75,4 @@ class UserAdmin(admin.ModelAdmin):
     )
     search_fields = ('username', 'role',)
     list_filter = ('username',)
-    empty_value_display = '-none-'
+    empty_value_display = '-empty-'

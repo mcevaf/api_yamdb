@@ -1,6 +1,7 @@
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import EmailMessage
+from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.filters import SearchFilter
@@ -8,18 +9,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.serializers import ValidationError
 from rest_framework_simplejwt.tokens import AccessToken
 
+from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from .filters import TitleFilter
 from .mixins import ListCreateDeleteViewSet
 from .permissions import (AdminOnly, IsAdminModeratorPermission,
                           IsadminUserOrReadOnly)
-
-from .serializers import (UserSerializer, NoAdminSerializers,
-                          GetTokenSerializers, SignUpSerializers,
+from .serializers import (UserSerializer,
+                          GetTokenSerializer, SignUpSerializer,
                           CategorySerializer, GenreSerializer,
                           TitleCreateUpdateSerializer, TitleSerializer)
-
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
@@ -30,78 +31,83 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     @action(
         methods=['GET', 'PATCH'],
         detail=False,
         permission_classes=(IsAuthenticated,),
         url_path='me')
-    def get_serializer_class(sefl, request):
-        serializer = UserSerializer(request.user)
+    def get_me(sefl, request):
+        serializer = UserSerializer(
+            request.user,
+            data=request.data,
+            partial=True)
+
+        if request.method == 'GET':
+            serializer.is_valid(raise_exception=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         if request.method == 'PATCH':
-            if request.user.admin:
-                serializer = UserSerializer(
-                    request.user,
-                    data=request.data,
-                    pertial=True
-                )
-            else:
-                serializer = NoAdminSerializers(
-                    request.user,
-                    data=request.data,
-                    partial=True
-                )
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=request.user.role)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            serializer.data, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class APISignup(APIView):
     """
     Получить код подтверждения на email.
     Права доступа: без токена.
-    Использовать 'me'/'Me'/'I' в username - запрещено.
+    Использовать 'me' в username - запрещено.
     Email и username должны быть уникальными
     """
+    def send_confirmation_code(self, user):
+        send_mail(
+            subject='Регистрация на Yamdb',
+            message=(
+                'Для завершения регистрации на Yamdb отправьте запрос '
+                f'с именем пользователя {user.username} и '
+                f'кодом подтверждения {user.confirmation_code} '
+                'на url - /api/v1/auth/token/.'
+            ),
+            from_email=DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email]
+        )
+
     permission_classes = (permissions.AllowAny,)
 
-    @staticmethod
-    def send_mail(data):
-        email = EmailMessage(
-            subject=data['email_subject'],
-            body=data['email_body'],
-            to=[data['to_email']]
-        )
-        email.send()
-
     def post(self, request):
-        serializer = SignUpSerializers(data=request.data)
+        serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        email_body = (
-            f'{user.username}.'
-            f'Код подтверждения: {user.confirmation_code}'
-        )
-        data = {
-            'email_body': email_body,
-            'to_email': user.email,
-            'email_subject': 'Код подтверждения.'
-        }
-        self.send_email(data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        username = serializer.validated_data.get('username')
+        email = serializer.validated_data.get('email')
+        try:
+            user, _ = User.objects.get_or_create(
+                username=username,
+                email=email
+            )
+        except IntegrityError as error:
+            raise ValidationError(
+                ('Ошибка при попытке создать новую запись '
+                 f'в базе с username={username}, email={email}')
+            ) from error
+        user.confirmation_code = default_token_generator
+        user.save()
+        self.send_confirmation_code(user)
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def send_token(request):
-    serializer = GetTokenSerializers(data=request.data)
+    serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    email = serializer.validated_data.get('email')
+    username = serializer.validated_data.get('username')
     confirmation_code = serializer.validated_data.get(
         'confirmation_code'
     )
-    user = get_object_or_404(User, email=email)
+    user = get_object_or_404(User, username=username)
     if default_token_generator.check_token(user, confirmation_code):
         token = AccessToken.for_user(user)
         return Response({'token': str(token)}, status=status.HTTP_200_OK)

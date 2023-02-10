@@ -3,12 +3,14 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.relations import SlugRelatedField
+from reviews.validators import validate_username
+from api_yamdb.settings import USERNAME_MAX_LENGTH, EMAIL_MAX_LENGTH
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    class Model:
+    class Meta:
         model = User
         fields = (
             'username', 'email',
@@ -17,19 +19,26 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class NoAdminSerializers(serializers.ModelSerializer):
-    class Model:
-        model = User
-        fields = (
-            'username', 'email',
-            'first_name', 'last_name',
-            'bio', 'role'
-        )
-
-
-class GetTokenSerializers(serializers.ModelSerializer):
+class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(
-        required=True
+        max_length=USERNAME_MAX_LENGTH,
+        required=True,
+        validators=[
+            validate_username,
+        ]
+    )
+    email = serializers.EmailField(
+        required=True,
+        max_length=EMAIL_MAX_LENGTH
+    )
+
+
+class GetTokenSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        required=True,
+        validators=[
+            validate_username
+        ]
     )
     confirmation_code = serializers.CharField(
         required=True
@@ -41,13 +50,6 @@ class GetTokenSerializers(serializers.ModelSerializer):
             'username',
             'confirmation_code'
         )
-
-
-class SignUpSerializers(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('email', 'username',)
 
 
 class CategorySerializer(serializers.ModelSerializer):
