@@ -26,13 +26,13 @@ from reviews.models import Category, Comment, Genre, Review, Title, User
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated, AdminOnly,)
+    permission_classes = (AdminOnly,)
     lookup_field = 'username'
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
 
     @action(
-        method=['GET', 'PATCH'],
+        methods=['GET', 'PATCH'],
         detail=False,
         permission_classes=(IsAuthenticated,),
         url_path='me')
