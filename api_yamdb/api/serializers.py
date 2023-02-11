@@ -3,10 +3,10 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.relations import SlugRelatedField
-from reviews.validators import validate_username
-from api_yamdb.settings import USERNAME_MAX_LENGTH, EMAIL_MAX_LENGTH
 
+from api_yamdb.settings import EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
 from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.validators import validate_username
 
 
 class UserSerializer(serializers.ModelSerializer):

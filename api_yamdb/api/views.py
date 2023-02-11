@@ -12,16 +12,16 @@ from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from .filters import TitleFilter
 from .mixins import ListCreateDeleteViewSet
 from .permissions import (AdminOnly, IsAdminModeratorPermission,
                           IsadminUserOrReadOnly)
-from .serializers import (UserSerializer,
-                          GetTokenSerializer, SignUpSerializer,
-                          CategorySerializer, GenreSerializer,
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, GetTokenSerializer,
+                          ReviewSerializer, SignUpSerializer,
                           TitleCreateUpdateSerializer, TitleSerializer,
-                          CommentSerializer, ReviewSerializer)
+                          UserSerializer)
+from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from reviews.models import Category, Genre, Review, Title, User
 
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Comment, Genre, Review, Title, User
+from .models import Category, Comment, Genre, GenreTitle, Review, Title, User
 
 
 @admin.register(Category)
@@ -50,8 +50,13 @@ class ReviewAdmin(admin.ModelAdmin):
     empty_value_display = '-empty-'
 
 
+class GenreTitleInline(admin.StackedInline):
+    model = GenreTitle
+
+
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
+    inlines = [GenreTitleInline]
     list_display = (
         'name',
         'year',
