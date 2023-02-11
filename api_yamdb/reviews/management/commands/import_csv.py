@@ -2,7 +2,9 @@ import csv
 
 from django.core.management.base import BaseCommand, CommandError
 
-from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title, User
+from reviews.models import (Category, Comment,
+                            Genre, GenreTitle,
+                            Review, Title, User)
 
 
 class Command(BaseCommand):
@@ -20,7 +22,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for model, file_name in self.CSV_FILES:
             print(f'Loading data for {model}')
-            csv_reader = csv.DictReader(open(f'static/data/{file_name}', encoding='utf-8'))            
+            csv_reader = csv.DictReader(
+                open(f'static/data/{file_name}', encoding='utf-8')
+            )
             for row in csv_reader:
                 row_copy = row.copy()
                 for field_name in row_copy.keys():

@@ -83,6 +83,7 @@ class Category(models.Model):
     """Модель для категорий."""
     name = models.CharField('Наименование категории', max_length=256)
     slug = models.SlugField('Slug категории', unique=True)
+
     class Meta:
         ordering = ('slug',)
         verbose_name = 'Категория'
@@ -96,6 +97,7 @@ class Genre(models.Model):
     """Модель для жанров."""
     name = models.CharField('Наименование жанра', max_length=256)
     slug = models.SlugField('Slug жанра', unique=True)
+
     class Meta:
         ordering = ('slug',)
         verbose_name = 'Жанр'
@@ -112,10 +114,7 @@ class Title(models.Model):
         'Год выпуска',
         validators=[MaxValueValidator(
             dt.datetime.now().year,
-            'Год не может быть больше текущего!'
-            )
-        ]
-    )
+            'Год не может быть больше текущего!')])
     description = models.TextField('Описание',)
     genre = models.ManyToManyField(
         Genre,

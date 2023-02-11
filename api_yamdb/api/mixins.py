@@ -5,6 +5,6 @@ from rest_framework.viewsets import GenericViewSet
 
 
 class ListCreateDeleteViewSet(GenericViewSet, CreateModelMixin,
-                               DestroyModelMixin, ListModelMixin):
+                              DestroyModelMixin, ListModelMixin):
     """Кастомный базовый класс для жанров и категорий."""
     pass

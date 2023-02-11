@@ -20,8 +20,9 @@ from .permissions import (AdminOnly, IsAdminModeratorPermission,
 from .serializers import (UserSerializer,
                           GetTokenSerializer, SignUpSerializer,
                           CategorySerializer, GenreSerializer,
-                          TitleCreateUpdateSerializer, TitleSerializer)
-from reviews.models import Category, Comment, Genre, Review, Title, User
+                          TitleCreateUpdateSerializer, TitleSerializer,
+                          CommentSerializer, ReviewSerializer)
+from reviews.models import Category, Genre, Review, Title, User
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -149,3 +150,34 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method in ('POST', 'PATCH'):
             return TitleCreateUpdateSerializer
         return TitleSerializer
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с отзывами."""
+    serializer_class = ReviewSerializer
+    permission_classes = (IsAdminModeratorPermission,)
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, id=self.kwargs['title_id'])
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs['title_id'])
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с комментариями."""
+    serializer_class = CommentSerializer
+    permission_classes = (IsAdminModeratorPermission,)
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, id=self.kwargs['review_id'])
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(
+            Review, id=self.kwargs['review_id'],
+            title=self.kwargs['title_id']
+        )
+        serializer.save(author=self.request.user, review=review)
