@@ -23,21 +23,23 @@ class Review(models.Model):
         auto_now_add=True,
         db_index=True)
     score = models.PositiveSmallIntegerField(
-        verbose_name='Рейтинг',
         validators=[
             MinValueValidator(1, 'Введите число от 1 до 10'),
-            MaxValueValidator(10, 'Введите число от 1 до 10')
-        ]
-    )
+            MaxValueValidator(10, 'Введите число от 1 до 10')],
+        verbose_name='Рейтинг')
 
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ['pub_date']
+        ordering = ('-pub_date')
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
                 name='unique_review')]
+
+    def __str__(self):
+        return self.text[:15]
+
 
 
 class Comment(models.Model):
@@ -62,4 +64,7 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = ['pub_date']
+        ordering = ('-pub_date')
+
+    def __str__(self):
+        return self.text[:15]
