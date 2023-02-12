@@ -21,8 +21,13 @@ router.register(
     CommentViewSet,
     basename='comments')
 
+urlpatterns_auth = [
+    path('signup/', APISignup.as_view(), name='signup'),
+    path('token/', send_token, name='get_token'),
+]
+
 urlpatterns = [
     path('v1/', include(router.urls)),
-    path('v1/auth/signup/', APISignup.as_view(), name='signup'),
-    path('v1/auth/token/', send_token, name='get_token'),
+    path('v1/auth/', include(urlpatterns_auth), name='signup'),
+    path('v1/auth/', include(urlpatterns_auth), name='get_token'),
 ]
