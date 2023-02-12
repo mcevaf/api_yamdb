@@ -1,15 +1,31 @@
 from django.db.models import Avg
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueValidator
 from rest_framework.generics import get_object_or_404
 from rest_framework.relations import SlugRelatedField
 from reviews.validators import validate_username
-from api_yamdb.settings import USERNAME_MAX_LENGTH, EMAIL_MAX_LENGTH
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        max_length=settings.USERNAME_MAX_LENGTH,
+        validators=[
+            UniqueValidator(queryset=User.objects.all()),
+            validate_username
+        ],
+        required=True,
+    )
+    email = serializers.EmailField(
+        max_length=settings.EMAIL_MAX_LENGTH,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
+
     class Meta:
         model = User
         fields = (
@@ -21,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(
-        max_length=USERNAME_MAX_LENGTH,
+        max_length=settings.USERNAME_MAX_LENGTH,
         required=True,
         validators=[
             validate_username,
@@ -29,16 +45,13 @@ class SignUpSerializer(serializers.Serializer):
     )
     email = serializers.EmailField(
         required=True,
-        max_length=EMAIL_MAX_LENGTH
+        max_length=settings.EMAIL_MAX_LENGTH
     )
 
 
-class GetTokenSerializer(serializers.ModelSerializer):
+class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(
         required=True,
-        validators=[
-            validate_username
-        ]
     )
     confirmation_code = serializers.CharField(
         required=True

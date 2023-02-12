@@ -1,16 +1,16 @@
 import datetime as dt
+from django.conf import settings
 
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb.settings import ADMIN, MODERATOR, USER
 from .validators import validate_username
 
 ROLE_CHOICES = [
-    (ADMIN, ADMIN),
-    (MODERATOR, MODERATOR),
-    (USER, USER)
+    (settings.ADMIN, 'администратор'),
+    (settings.MODERATOR, 'модератор'),
+    (settings.USER, 'пользователь')
 ]
 
 
@@ -31,9 +31,9 @@ class User(AbstractUser):
     )
     role = models.CharField(
         'роль',
-        max_length=30,
+        max_length=max((len(item) for _, item in ROLE_CHOICES)),
         choices=ROLE_CHOICES,
-        default=USER,
+        default=settings.USER,
         blank=True,
     )
     bio = models.TextField(
@@ -60,15 +60,11 @@ class User(AbstractUser):
     '''Декоратор @property возвращает из метода класса в атрибут класса'''
     @property
     def is_admin(self):
-        return self.role == ADMIN or self.is_superuser
+        return self.role == settings.ADMIN or self.is_superuser
 
     @property
     def is_moderator(self):
-        return self.role == MODERATOR or self.is_staff
-
-    @property
-    def is_user(self):
-        return self.role == USER
+        return self.role == settings.MODERATOR or self.is_staff
 
     class Meta:
         ordering = ('id',)
@@ -83,6 +79,7 @@ class Category(models.Model):
     """Модель для категорий."""
     name = models.CharField('Наименование категории', max_length=256)
     slug = models.SlugField('Slug категории', unique=True)
+
     class Meta:
         ordering = ('slug',)
         verbose_name = 'Категория'
@@ -96,6 +93,7 @@ class Genre(models.Model):
     """Модель для жанров."""
     name = models.CharField('Наименование жанра', max_length=256)
     slug = models.SlugField('Slug жанра', unique=True)
+
     class Meta:
         ordering = ('slug',)
         verbose_name = 'Жанр'
@@ -112,8 +110,7 @@ class Title(models.Model):
         'Год выпуска',
         validators=[MaxValueValidator(
             dt.datetime.now().year,
-            'Год не может быть больше текущего!'
-            )
+            'Год не может быть больше текущего!')
         ]
     )
     description = models.TextField('Описание',)
