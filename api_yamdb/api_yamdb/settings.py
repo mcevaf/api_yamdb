@@ -100,6 +100,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
@@ -130,3 +133,5 @@ DEFAULT_FROM_EMAIL = 'test_email@gmail.com'
 
 USERNAME_MAX_LENGTH = 150
 EMAIL_MAX_LENGTH = 254
+EMAIL_ERROR = 'Электронная почта уже существует!'
+USERNAME_ERROR = 'Пользователь с таким именем уже сущетсвует!'

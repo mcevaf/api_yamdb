@@ -64,7 +64,7 @@ class TitleAdmin(admin.ModelAdmin):
         'category',
     )
     search_fields = ('name',)
-    list_filter = ('name',)
+    list_filter = ('name', 'category')
     empty_value_display = '-empty-'
 
 
@@ -79,5 +79,5 @@ class UserAdmin(admin.ModelAdmin):
         'last_name',
     )
     search_fields = ('username', 'role',)
-    list_filter = ('username',)
+    list_filter = ('username', 'role',)
     empty_value_display = '-empty-'

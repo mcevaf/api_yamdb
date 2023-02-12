@@ -1,12 +1,12 @@
-from django.db import IntegrityError
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
@@ -21,7 +21,6 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           ReviewSerializer, SignUpSerializer,
                           TitleCreateUpdateSerializer, TitleSerializer,
                           UserSerializer)
-from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from reviews.models import Category, Genre, Review, Title, User
 
 
@@ -45,10 +44,7 @@ class UserViewSet(viewsets.ModelViewSet):
             data=request.data,
             partial=True)
 
-        if request.method == 'GET':
-            serializer.is_valid(raise_exception=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        if request.method == 'PATCH':
+        if request.method == 'GET' or 'PATCH':
             serializer.is_valid(raise_exception=True)
             serializer.save(role=request.user.role)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -72,11 +68,9 @@ class APISignup(APIView):
                 f'кодом подтверждения {user.confirmation_code} '
                 'на url - /api/v1/auth/token/.'
             ),
-            from_email=DEFAULT_FROM_EMAIL,
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email]
         )
-
-    permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
@@ -88,19 +82,19 @@ class APISignup(APIView):
                 username=username,
                 email=email
             )
-        except IntegrityError as error:
-            raise ValidationError(
-                ('Ошибка при попытке создать новую запись '
-                 f'в базе с username={username}, email={email}')
-            ) from error
-        user.confirmation_code = default_token_generator
+        except Exception:
+            if User.objects.filter(email=email).exists():
+                raise ValidationError(settings.EMAIL_ERROR)
+            else:
+                raise ValidationError(settings.USERNAME_ERROR)
+        confirmation_code = default_token_generator.make_token(user)
+        user.confirmation_code = confirmation_code
         user.save()
         self.send_confirmation_code(user)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
-@permission_classes([permissions.AllowAny])
 def send_token(request):
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)

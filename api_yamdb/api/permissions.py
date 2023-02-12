@@ -2,6 +2,10 @@ from rest_framework import permissions
 
 
 class AdminOnly(permissions.BasePermission):
+    """
+    Пользователь является superuser
+    или имеет роль администратора.
+    """
     def has_permission(self, request, view):
         return (
             request.user.is_authenticated
@@ -10,6 +14,11 @@ class AdminOnly(permissions.BasePermission):
 
 
 class IsAdminModeratorPermission(permissions.BasePermission):
+    """
+    Пользователь является superuser
+    или имеет роль администратора или модератора.
+    Просмотр доступен всем пользователям.
+    """
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
@@ -26,6 +35,11 @@ class IsAdminModeratorPermission(permissions.BasePermission):
 
 
 class IsadminUserOrReadOnly(permissions.BasePermission):
+    """
+    Пользователь является superuser
+    или имеет роль администратора.
+    Просмотр доступен всем пользователями.
+    """
     def has_permission(self, request, view):
 
         return (
