@@ -1,10 +1,22 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
-from users.models import User
+
+class CreatedModel(models.Model):
+    """Абстрактная модель."""
+    pub_date = models.DateTimeField(
+        verbose_name='Дата добавления',
+        auto_now_add=True,
+        db_index=True)
+    text = models.TextField(
+        verbose_name='Текст')
+
+    class Meta:
+        abstract = True
+        ordering = ('-pub_date',)
 
 
-class Review(models.Model):
+class Review(CreatedModel):
     """Модель для отзывов."""
     author = models.ForeignKey(
         User,
@@ -16,12 +28,6 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Отзыв')
-    text = models.TextField(
-        verbose_name='Текст')
-    pub_date = models.DateTimeField(
-        verbose_name='Дата добавления',
-        auto_now_add=True,
-        db_index=True)
     score = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(1, 'Введите число от 1 до 10'),
@@ -31,7 +37,6 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ('-pub_date')
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
@@ -41,8 +46,7 @@ class Review(models.Model):
         return self.text[:15]
 
 
-
-class Comment(models.Model):
+class Comment(CreatedModel):
     """Модель для комментарий."""
     author = models.ForeignKey(
         User,
@@ -54,17 +58,10 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='Отзыв')
-    text = models.TextField(
-        verbose_name='Текст')
-    pub_date = models.DateTimeField(
-        verbose_name='Дата добавления',
-        auto_now_add=True,
-        db_index=True)
-
+    
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = ('-pub_date')
-
+        
     def __str__(self):
         return self.text[:15]
