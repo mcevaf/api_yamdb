@@ -11,12 +11,6 @@ def validate_username(value):
         raise ValidationError(
             ('Имя не может быть - me'),
         )
-    checked = re.match(r'^[\w.@+-]+\Z', value)
-    if checked is None or checked.group() != value:
-        forbidden_simbol = value[0] if (
-            checked is None
-        ) else value[checked.span()[1]]
-        raise ValidationError(f'Нельзя использовать символ {forbidden_simbol} '
-                              'в username. Имя пользователя может содержать '
-                              'только буквы, цифры и символы @/./+/-/_')
-    return value
+    if not re.match(r'^[\w.@+-]+\Z', value):
+        raise ValidationError((
+            f'{value} Имя пользователя содержит не допустимые символы!'))
