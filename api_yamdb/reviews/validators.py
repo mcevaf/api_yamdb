@@ -13,4 +13,4 @@ def validate_username(value):
         )
     if not re.match(r'^[\w.@+-]+\Z', value):
         raise ValidationError((
-            f'{value} Имя пользователя содержит не допустимые символы!'))
+            f'{value} Имя пользователя содержит недопустимые символы!'))
