@@ -98,6 +98,14 @@ class TitleSerializer(serializers.ModelSerializer):
         )
 
 
+class Rating(serializers.Field):
+
+    def to_representation(self, value):
+        if not value:
+            return None
+        return value
+
+
 class TitleCreateUpdateSerializer(serializers.ModelSerializer):
     """Сериализатор создания/обновления произведения."""
     genre = serializers.SlugRelatedField(
@@ -106,9 +114,12 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all(), many=False
     )
+    rating = Rating(required=False)
 
     class Meta:
-        fields = '__all__'
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+        )
         model = Title
     
     def validate_year(self, value):
@@ -116,7 +127,6 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Год издания больше текущего!')
         return value
-
 
 
 class ReviewSerializer(serializers.ModelSerializer):
