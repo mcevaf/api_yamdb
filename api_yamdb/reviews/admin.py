@@ -1,7 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 
 from .models import Category, Comment, Genre, GenreTitle, Review, Title, User
 
+admin.site.unregister(Group)
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -62,10 +64,16 @@ class TitleAdmin(admin.ModelAdmin):
         'year',
         'description',
         'category',
+        'get_genre',
     )
     search_fields = ('name',)
     list_filter = ('name', 'category')
+    list_editable = ('category',)
     empty_value_display = '-empty-'
+
+    def get_genre(self, obj):
+        return [genre.name for genre in obj.genre.all()]
+
 
 
 @admin.register(User)
@@ -80,4 +88,5 @@ class UserAdmin(admin.ModelAdmin):
     )
     search_fields = ('username', 'role',)
     list_filter = ('username', 'role',)
+    list_editable = ('role',)
     empty_value_display = '-empty-'
