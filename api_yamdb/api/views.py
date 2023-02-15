@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -115,26 +116,18 @@ def send_token(request):
 class CategoryViewSet(ListCreateDeleteViewSet):
     """Вьюсет для категорий."""
     queryset = Category.objects.all()
-    lookup_field = 'slug'
     serializer_class = CategorySerializer
-    permission_classes = [IsadminUserOrReadOnly]
-    filter_backends = [SearchFilter]
-    search_fields = ('=name',)
 
 
 class GenreViewSet(ListCreateDeleteViewSet):
     """Вьюсет для жанров."""
     queryset = Genre.objects.all()
-    lookup_field = 'slug'
     serializer_class = GenreSerializer
-    permission_classes = [IsadminUserOrReadOnly]
-    filter_backends = [SearchFilter]
-    search_fields = ('=name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для произведений."""
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     permission_classes = [IsadminUserOrReadOnly]
     filter_backends = [DjangoFilterBackend]
