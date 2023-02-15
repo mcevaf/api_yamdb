@@ -125,7 +125,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         author=self.context['request'].user
         title_id = self.context['view'].kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
-        if request.method == 'POST':
+        if self.context['request'].method == 'POST':
             if title.reviews.select_related('title').filter(author=author):
                 raise ValidationError(
                     'Отзыв можно оставить только один раз!'
