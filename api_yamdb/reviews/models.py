@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .validators import validate_username
+from .validators import validate_username, validate_year
 
 ROLE_CHOICES = [
     (settings.ADMIN, 'администратор'),
@@ -75,32 +75,32 @@ class User(AbstractUser):
         return self.username
 
 
-class Category(models.Model):
-    """Модель для категорий."""
-    name = models.CharField('Наименование категории', max_length=256)
-    slug = models.SlugField('Slug категории', unique=True)
+class AbstractCategoryGenre(models.Model):
+    """Абстрактная модель для категорий и жанров."""
+    name = models.CharField('Наименование', max_length=256)
+    slug = models.SlugField('Slug', unique=True)
 
     class Meta:
-        ordering = ('slug',)
+        ordering = ('name', 'slug',)
+
+    def __str__(self):
+        return self.slug
+
+
+class Category(AbstractCategoryGenre):
+    """Модель для категорий."""
+    
+    class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
-    def __str__(self):
-        return self.slug
 
-
-class Genre(models.Model):
+class Genre(AbstractCategoryGenre):
     """Модель для жанров."""
-    name = models.CharField('Наименование жанра', max_length=256)
-    slug = models.SlugField('Slug жанра', unique=True)
 
     class Meta:
-        ordering = ('slug',)
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-
-    def __str__(self):
-        return self.slug
 
 
 class Title(models.Model):
@@ -108,11 +108,7 @@ class Title(models.Model):
     name = models.CharField('Наименование произведения', max_length=256)
     year = models.PositiveSmallIntegerField(
         'Год выпуска',
-        validators=[MaxValueValidator(
-            dt.datetime.now().year,
-            'Год не может быть больше текущего!'
-            )
-        ]
+        validators=(validate_year,)
     )
     description = models.TextField('Описание',)
     genre = models.ManyToManyField(
