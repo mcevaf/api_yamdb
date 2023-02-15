@@ -1,3 +1,5 @@
+import datetime
+
 from django.db.models import Avg
 from django.conf import settings
 from rest_framework import serializers
@@ -84,16 +86,16 @@ class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор получения данных произведения."""
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.SerializerMethodField()
-
-    def get_rating(self, obj):
-        return obj.reviews.aggregate(Avg('score')).get('score__avg', None)
+    rating = serializers.IntegerField()
 
     class Meta:
         fields = (
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
         )
         model = Title
+        read_only_fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+        )
 
 
 class TitleCreateUpdateSerializer(serializers.ModelSerializer):
@@ -108,6 +110,13 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
+    
+    def validate_year(self, value):
+        if value > datetime.datetime.now().year:
+            raise serializers.ValidationError(
+                'Год издания больше текущего!')
+        return value
+
 
 
 class ReviewSerializer(serializers.ModelSerializer):
