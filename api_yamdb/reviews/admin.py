@@ -5,6 +5,7 @@ from .models import Category, Comment, Genre, GenreTitle, Review, Title, User
 
 admin.site.unregister(Group)
 
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = (
@@ -73,7 +74,6 @@ class TitleAdmin(admin.ModelAdmin):
 
     def get_genre(self, obj):
         return [genre.name for genre in obj.genre.all()]
-
 
 
 @admin.register(User)

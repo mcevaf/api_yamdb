@@ -1,13 +1,11 @@
 import datetime
 
-from django.db.models import Avg
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueValidator
 from rest_framework.generics import get_object_or_404
 from rest_framework.relations import SlugRelatedField
-from reviews.validators import validate_username
+from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 from reviews.validators import validate_username
@@ -121,7 +119,7 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
         )
         model = Title
-    
+
     def validate_year(self, value):
         if value > datetime.datetime.now().year:
             raise serializers.ValidationError(
@@ -133,18 +131,17 @@ class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с отзывами."""
     author = SlugRelatedField(
         slug_field='username', read_only=True)
-    
+
     class Meta:
         model = Review
         fields = ('id', 'text', 'title', 'author', 'score', 'pub_date')
         read_only_fields = ('title', 'author')
 
-
     def validate(self, data):
-        author=self.context['request'].user
-        title_id = self.context['view'].kwargs.get('title_id')
-        title = get_object_or_404(Title, pk=title_id)
         if self.context['request'].method == 'POST':
+            author = self.context['request'].user
+            title_id = self.context['view'].kwargs.get('title_id')
+            title = get_object_or_404(Title, pk=title_id)
             if title.reviews.select_related('title').filter(author=author):
                 raise ValidationError(
                     'Отзыв можно оставить только один раз!'
@@ -156,7 +153,7 @@ class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с коментариями."""
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True)
-    
+
     class Meta:
         model = Comment
         fields = ('id', 'text', 'review', 'author', 'pub_date')

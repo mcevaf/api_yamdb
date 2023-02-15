@@ -16,6 +16,7 @@ def validate_username(value):
         raise ValidationError((
             f'{value} Имя пользователя содержит недопустимые символы!'))
 
+
 def validate_year(value):
     if value > datetime.datetime.now().year:
         raise ValidationError(

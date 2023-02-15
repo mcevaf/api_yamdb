@@ -131,7 +131,11 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 DEFAULT_FROM_EMAIL = 'test_email@gmail.com'
 
-USERNAME_MAX_LENGTH = 150
-EMAIL_MAX_LENGTH = 254
 EMAIL_ERROR = 'Электронная почта уже существует!'
 USERNAME_ERROR = 'Пользователь с таким именем уже сущетсвует!'
+
+USERNAME_MAX_LENGTH = 150
+EMAIL_MAX_LENGTH = 254
+CONFIRMATION_CODE_MAX_LENGTH = 255
+GENRE_CATEGORY_TITLE_MAX_LENGTH = 256
+REVIEW_COMMENT_STR_LENGTH = 15
