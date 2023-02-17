@@ -12,9 +12,10 @@ def validate_username(value):
         raise ValidationError(
             ('Имя не может быть - me'),
         )
-    if not re.match(r'^[\w.@+-]+\Z', value):
-        raise ValidationError((
-            f'{value} Имя пользователя содержит недопустимые символы!'))
+    value_check = set(re.sub(r'^[\w.@+-]+\Z', r'', value.join(set(value))))
+    if value_check:
+        raise ValidationError(
+            f'Имя пользователя содержит недопустимые символы:{value_check}')
 
 
 def validate_year(value):

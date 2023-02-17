@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db import IntegrityError
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
@@ -38,19 +39,22 @@ class UserViewSet(viewsets.ModelViewSet):
         methods=['GET', 'PATCH'],
         detail=False,
         permission_classes=(IsAuthenticated,),
-        url_path='me')
+        url_path='me',)
     def get_me(sefl, request):
         serializer = UserSerializer(
             request.user,
             data=request.data,
             partial=True)
 
-        if request.method == 'GET' or 'PATCH':
+        if request.method == 'GET':
             serializer.is_valid(raise_exception=True)
             serializer.save(role=request.user.role)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=request.user.role)
         return Response(
-            serializer.data, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            serializer.data, status=status.HTTP_200_OK)
 
 
 class APISignup(APIView):
@@ -83,11 +87,11 @@ class APISignup(APIView):
                 username=username,
                 email=email
             )
-        except Exception:
-            if User.objects.filter(email=email).exists():
-                raise ValidationError(settings.EMAIL_ERROR)
-            else:
-                raise ValidationError(settings.USERNAME_ERROR)
+        except IntegrityError:
+            raise ValidationError(settings.EMAIL_ERROR
+                                  if User.objects.filter(email=email).exists()
+                                  else settings.USERNAME_ERROR)
+
         confirmation_code = default_token_generator.make_token(user)
         user.confirmation_code = confirmation_code
         user.save()
