@@ -83,6 +83,7 @@ class AbstractCategoryGenre(models.Model):
     slug = models.SlugField('Slug', unique=True)
 
     class Meta:
+        abstract = True
         ordering = ('name', 'slug',)
 
     def __str__(self):
@@ -92,7 +93,7 @@ class AbstractCategoryGenre(models.Model):
 class Category(AbstractCategoryGenre):
     """Модель для категорий."""
 
-    class Meta:
+    class Meta(AbstractCategoryGenre.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -100,7 +101,7 @@ class Category(AbstractCategoryGenre):
 class Genre(AbstractCategoryGenre):
     """Модель для жанров."""
 
-    class Meta:
+    class Meta(AbstractCategoryGenre.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -112,23 +113,21 @@ class Title(models.Model):
         max_length=settings.GENRE_CATEGORY_TITLE_MAX_LENGTH)
     year = models.PositiveSmallIntegerField(
         'Год выпуска',
-        validators=(validate_year,)
-    )
+        validators=(validate_year,),
+        db_index=True)
     description = models.TextField('Описание',)
     genre = models.ManyToManyField(
         Genre,
         through='GenreTitle',
         blank=True,
         related_name='titles',
-        verbose_name='Жанр'
-    )
+        verbose_name='Жанр')
     category = models.ForeignKey(
         Category,
         null=True,
         on_delete=models.SET_NULL,
         related_name='titles',
-        verbose_name='Категория'
-    )
+        verbose_name='Категория')
 
     class Meta:
         ordering = ('year',)
@@ -159,13 +158,17 @@ class GenreTitle(models.Model):
         return f'{self.title}: {self.genre}'
 
 
-class CreatedModel(models.Model):
-    """Абстрактная модель."""
+class AbstractReviewComment(models.Model):
+    """Абстрактная модель для отзывов и комментариев."""
     pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
         db_index=True)
     text = models.TextField('Текст',)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь')
 
     class Meta:
         abstract = True
@@ -175,26 +178,21 @@ class CreatedModel(models.Model):
         return self.text[:settings.REVIEW_COMMENT_STR_LENGTH]
 
 
-class Review(CreatedModel):
+class Review(AbstractReviewComment):
     """Модель для отзывов."""
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Пользователь')
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='reviews',
         verbose_name='Отзыв')
     score = models.PositiveSmallIntegerField(
         'Рейтинг',
         validators=[
             MinValueValidator(1, 'Введите число от 1 до 10'),
             MaxValueValidator(10, 'Введите число от 1 до 10')],
-    )
+        default=1)
 
-    class Meta:
+    class Meta(AbstractReviewComment.Meta):
+        default_related_name = 'reviews'
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         constraints = [
@@ -203,19 +201,14 @@ class Review(CreatedModel):
                 name='unique_review')]
 
 
-class Comment(CreatedModel):
+class Comment(AbstractReviewComment):
     """Модель для комментарий."""
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='Пользователь')
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments',
         verbose_name='Отзыв')
 
-    class Meta:
+    class Meta(AbstractReviewComment.Meta):
+        default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'

@@ -19,6 +19,9 @@ def validate_username(value):
 
 
 def validate_year(value):
+    """
+    Недопустимо указывать год выпуска произведения больше текущего.
+    """
     if value > datetime.datetime.now().year:
         raise ValidationError(
             f'Указанный год {value} больше текущего'

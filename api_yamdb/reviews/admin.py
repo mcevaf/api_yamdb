@@ -74,6 +74,7 @@ class TitleAdmin(admin.ModelAdmin):
 
     def get_genre(self, obj):
         return [genre.name for genre in obj.genre.all()]
+    get_genre.short_description = 'Жанр'
 
 
 @admin.register(User)

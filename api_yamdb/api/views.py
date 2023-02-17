@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.db import IntegrityError
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -136,7 +136,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = [IsadminUserOrReadOnly]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = TitleFilter
-    ordering_fields = '__all__'
+    ordering_fields = ('name', 'year',)
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH'):

@@ -84,7 +84,7 @@ class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор получения данных произведения."""
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.IntegerField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         fields = (
@@ -96,14 +96,6 @@ class TitleSerializer(serializers.ModelSerializer):
         )
 
 
-class Rating(serializers.Field):
-
-    def to_representation(self, value):
-        if not value:
-            return None
-        return value
-
-
 class TitleCreateUpdateSerializer(serializers.ModelSerializer):
     """Сериализатор создания/обновления произведения."""
     genre = serializers.SlugRelatedField(
@@ -112,11 +104,10 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all(), many=False
     )
-    rating = Rating(required=False)
 
     class Meta:
         fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+            'id', 'name', 'year', 'description', 'genre', 'category'
         )
         model = Title
 
@@ -125,6 +116,9 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Год издания больше текущего!')
         return value
+
+    def to_representation(self, instance):
+        return TitleSerializer(instance).data
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -150,7 +144,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с коментариями."""
+    """Сериализатор для работы с комментариями."""
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True)
 
